@@ -68,12 +68,13 @@ jQuery (function ($) {
     if ((jQuery('#ai-iab-tcf-bar').length || jQuery('.ai-list-manual').length) && typeof __tcfapi == 'function' && typeof ai_load_blocks == 'function' && typeof ai_iab_tcf_callback_installed == 'undefined') {
 
       function ai_iab_tcf_callback (tcData, success) {
-
         if (ai_debug) console.log ("AI LISTS ai_iab_tcf_callback", success, tcData);
 
         if (success) {
           if (tcData.eventStatus === 'useractioncomplete') {
             ai_tcData = tcData;
+
+            if (ai_debug) console.log ("AI LISTS ai_load_blocks ()");
 
             ai_load_blocks ();
 
@@ -603,10 +604,11 @@ jQuery (function ($) {
                     list_passed = result;
                   } else list_passed = !result;
 
-                  if (list_passed) {
-                    // For this term ai_tcData was found and list passed, no need to check again
-                    url_parameters_no_ai_tcData_yet = false;
-                  }
+                  // Checked and set after all the terms have been checked
+//                  if (list_passed) {
+//                    // For this term ai_tcData was found and list passed, no need to check again
+//                    url_parameters_no_ai_tcData_yet = false;
+//                  }
                 } else {
                     // Mark this list as unprocessed - will be processed later when __tcfapi callback function is called
                     block_div.addClass ('ai-list-data');
@@ -696,6 +698,11 @@ jQuery (function ($) {
               return false;  // End list check
             }
           });
+
+          if (list_passed) {
+            // List passed, no need to check ai_tcData again
+            url_parameters_no_ai_tcData_yet = false;
+          }
 
           switch (parameter_list_type) {
             case "B":
@@ -983,6 +990,8 @@ jQuery (function ($) {
             if (ai_debug) console.log ("AI LISTS ai_cmplzEnableScripts", consentData);
 
             if (consentData.type == 'cmplzEnableScripts' || consentData.consentLevel === 'all'){
+              if (ai_debug) console.log ("AI LISTS ai_load_blocks ()");
+
               ai_load_blocks ();
             }
           }

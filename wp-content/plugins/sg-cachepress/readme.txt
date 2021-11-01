@@ -24,6 +24,17 @@ For detailed information on our plugin and how it works, please check out our [S
 
 In this tab, you can configure your Dynamic Caching to store your content in the server’s memory for faster access and Memcached which stores frequently executed queries to your database and reuses them for better performance. Make sure you’ve enabled them from your Site Tools or cPanel before using the plugin. You can also enable Automatic Cache purge. This will perform a Full Purge on page, posts, and category deletion, plugin and theme activation, deactivation, or update, and on WordPress core updates. Enabling the Browser-specific caching will create different cache versions based on the user agent used. From Exclude Post Types you can exclude the ones you don’t want to be cached at all. You can also exclude specific URLs or use a wildcard to exclude any sub-pages of a specific “parent-page”. We have also provided a test tool where you can check if a specific URL has Dynamic caching actually running.
 
+You can allow other user roles to flush cache using the filter we've designed for that purpose. Make sure to use the user role capatability in the filter. Here's an example of the code, you can add to your functions.php file:
+
+	add_filter( 'sgo_purge_button_capabilities', 'sgo_add_new_role' );
+	function sgo_add_new_role( $default_capabilities ) {
+		// Allow new user role to flush cache.
+		$default_capabilities[] = 'delete_others_posts'; // For Editors.
+		$default_capabilities[] = 'edit_published_posts'; // For Authors.
+
+		return $default_capabilities;
+	}
+
 = Environment Optimization = 
 
 Here, you can force HTTPS for your site, enable or disable Gzip Compression and Browser Caching rules. You can activate Database Optimization which will remove all unnecessary items from your database and optimize its tables. If you are using the InnoDB storage engine, the optimization of tables is done automatically by the engine. Use DNS-Prefetching to increase load speeds for external resources. It works by resolving the domain name, before a resource is requested. You can also manage Heartbeat Control to modify the frequency of the WP Heartbeat for different locations. By default, the WordPress Heartbeat API checks every 15 seconds on your post edit pages and every 60 seconds on your dashboard and front end whether there are scheduled tasks to be executed. With this option, you can make the checks run less frequently or completely disable them.
@@ -231,6 +242,39 @@ Our plugin uses a cookie in order to function properly. It does not store person
 1. Go to Plugins -> Installed Plugins and click the 'Activate' link under the WordPress SiteGround Optimizer listing
 
 == Changelog ==
+
+= Version 5.9.6 =
+* Improved WP Json purging mechanisms
+* Added protection against cronjob loops caused by 3rd party plugins
+* Improved Spam comments handling
+
+= Version 5.9.5 =
+* Improved Page Builders Support (Elementor, Oxygen, Divi and others)
+
+= Version 5.9.4 =
+* Improved smart cache
+
+= Version 5.9.3 =
+* Fixed WebP regeneration issue
+
+= Version 5.9.2 =
+* Improved cache flush queue
+
+= Version 5.9.1 =
+* Minor bug fixes
+
+= Version 5.9.0 =
+* Plugin refactoring
+
+= Version 5.8.5 =
+* Improved CF detection
+* Minor bug fixes
+
+= Version 5.8.4 =
+* Improved cache purging mechanism
+
+= Version 5.8.3 =
+* Improved cache purge
 
 = Version 5.8.2 =
 * Improved speed tests

@@ -2,23 +2,12 @@
 namespace SiteGround_Optimizer\I18n;
 
 use SiteGround_Optimizer\Helper\Helper;
-
 use CharlesRumley\PoToJson;
 
 /**
  * I18n functions.
  */
 class I18n {
-
-	/**
-	 * Create a new helper.
-	 */
-	public function __construct() {
-		// Load the plugin textdomain.
-		add_action( 'after_setup_theme', array( $this, 'load_textdomain' ), 9999 );
-		// Generate JSON translations.
-		add_action( 'upgrader_process_complete', array( $this, 'update_json_translations' ), 10, 2 );
-	}
 
 	/**
 	 * Load the plugin textdomain.

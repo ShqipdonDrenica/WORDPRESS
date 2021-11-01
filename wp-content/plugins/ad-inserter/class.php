@@ -27,6 +27,7 @@ abstract class ai_BaseCodeBlock {
   var $hidden_viewports;
   var $head_code_written;
   var $wrapping_div_classes;
+  var $code_empty;
 
   var $check_block;
   var $check_block_style;
@@ -101,6 +102,7 @@ abstract class ai_BaseCodeBlock {
     $this->hidden_viewports = '';
     $this->head_code_written = false;
     $this->wrapping_div_classes = array ();
+    $this->code_empty = false;
 
     $this->check_block = false;
     $this->check_block_style = '';
@@ -528,11 +530,10 @@ abstract class ai_BaseCodeBlock {
     unset ($this->wp_options ['GENERATED_CODE']);
   }
 
-  public function empty_code () {
+  public function empty_code ($code = null) {
     global $ai_last_check, $ai_wp_data;
 
     $ai_last_check = AI_CHECK_CODE;
-    $empty = $this->ai_getCode () == '';
 
     if (isset ($ai_wp_data [AI_BLOCK_PHP_CODE_CACHING][$this->number]) && !$ai_wp_data [AI_BLOCK_PHP_CODE_CACHING][$this->number]) {
       return false;
@@ -548,6 +549,12 @@ abstract class ai_BaseCodeBlock {
         $this->get_horizontal_position () == AI_STICK_HORIZONTAL_CENTER) {
       return false;
     }
+
+    if ($code === null) {
+      $code = $this->ai_getCode ();
+    }
+
+    $empty = $code == '';
 
     return $empty;
   }
@@ -3673,6 +3680,12 @@ abstract class ai_CodeBlock extends ai_BaseCodeBlock {
               ai_log ('BLOCK ' . $this->number . ' AMP CODE USED');
             }
             $processed_code = trim ($codes [$code_index]);
+
+            if ($this->empty_code ($processed_code)) {
+              ai_log ('AMP SEPARATOR ' . ($ai_wp_data [AI_WP_AMP_PAGE] ? '[AMP]' : '[NORMAL]') . ': EMPTY CODE FOR BLOCK ' . $this->number);
+
+              $this->code_empty = true;
+            }
           } else {
               // AMP page but No AMP separator - don't insert code unless enabled
               if ($ai_wp_data [AI_WP_AMP_PAGE]) {
@@ -4652,12 +4665,12 @@ abstract class ai_CodeBlock extends ai_BaseCodeBlock {
 
     $w3tc = $this->w3tc_code != '' && get_dynamic_blocks () == AI_DYNAMIC_BLOCKS_SERVER_SIDE_W3TC && !defined ('AI_NO_W3TC');
 
-    if ($this->get_alignment_type() == AI_ALIGNMENT_NO_WRAPPING || $code_only || $this->check_code_empty) {
+    if ($this->get_alignment_type() == AI_ALIGNMENT_NO_WRAPPING || $code_only || $this->check_code_empty || $this->code_empty) {
       return $code;
     }
 
     // Prevent empty wrapping div on AMP pages
-    if ($ai_wp_data [AI_WP_AMP_PAGE] && $code == '') return '';
+//    if ($ai_wp_data [AI_WP_AMP_PAGE] && $code == '') return '';
 
     if ($hidden_widgets) return $this->hidden_viewports;
 

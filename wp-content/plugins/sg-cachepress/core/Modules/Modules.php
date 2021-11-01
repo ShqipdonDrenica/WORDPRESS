@@ -4,7 +4,6 @@ namespace SiteGround_Optimizer\Modules;
 require_once \SiteGround_Optimizer\DIR . '/vendor/pear/net_dns2/Net/DNS2.php';
 
 use SiteGround_Optimizer\Multisite\Multisite;
-use SiteGround_Optimizer\Admin\Admin;
 use SiteGround_Optimizer\Options\Options;
 use SiteGround_Optimizer\Helper\Helper;
 
@@ -487,24 +486,6 @@ class Modules {
 	);
 
 	/**
-	 * The constructor.
-	 */
-	public function __construct() {
-		add_action( 'admin_notices', array( $this, 'blocking_plugins_notice' ) );
-		add_action( 'admin_notices', array( $this, 'cache_plugins_notice' ) );
-		add_action( 'network_admin_notices', array( $this, 'cache_plugins_notice' ) );
-		add_action( 'network_admin_notices', array( $this, 'blocking_plugins_notice' ) );
-
-		add_action( 'wp_login', array( $this, 'has_cloudflare' ) );
-
-		if ( 1 === (int) get_option( 'disable_conflicting_modules', 0 ) ) {
-			add_action( 'plugins_loaded', array( $this, 'disable_modules' ) );
-		}
-
-		self::$instance = $this;
-	}
-
-	/**
 	 * Get the singleton instance.
 	 *
 	 * @since 5.0.0
@@ -512,6 +493,10 @@ class Modules {
 	 * @return \Supercacher The singleton instance.
 	 */
 	public static function get_instance() {
+		if ( null == self::$instance ) {
+			self::$instance = new self();
+		}
+
 		return self::$instance;
 	}
 
@@ -825,7 +810,7 @@ class Modules {
 	public function get_optimizations() {
 		$optimizations = array();
 		$count         = 3;
-		$is_avalon     = Helper::is_avalon();
+		$is_siteground = Helper::is_siteground();
 
 		// Order the modules.
 		$keys = array_column( $this->modules, 'weight' );
@@ -848,7 +833,7 @@ class Modules {
 			}
 
 			// Or if the optimization is for avalon servers only.
-			if ( ! $is_avalon && ! empty( $module['avalon'] ) ) {
+			if ( ! $is_siteground && ! empty( $module['avalon'] ) ) {
 				continue;
 			}
 
@@ -873,7 +858,7 @@ class Modules {
 	}
 
 	/**
-	 * Check if the current domain has cloudflare
+	 * Check if the current domain has cloudflare.
 	 *
 	 * @since  5.7.0
 	 *

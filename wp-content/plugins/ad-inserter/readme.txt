@@ -6,7 +6,7 @@ Tags: ads, adsense, ad rotation, ad manager, amp, amazon, ad blocking detection,
 Requires at least: 4.6
 Tested up to: 5.8
 Requires PHP: 5.6
-Stable tag: 2.7.2
+Stable tag: 2.7.3
 License: GPLv3
 
 Manage Google AdSense, Media.net, Amazon banners, ads.txt, ad rotation, sticky widgets, AMP ads, DFP, tracking, AdSense header and footer code
@@ -352,6 +352,12 @@ If you are not happy to reveal this information and you have opted in, simply di
 
 == Changelog ==
 
+= 2.7.3 =
+- Improved ad blocking detection
+- Improved compatibility with PHP 8
+- Improved check for update server accessibility (Pro only)
+- Few minor bug fixes, cosmetic changes and code improvements
+
 = 2.7.2 =
 - Added shortcuts for TCF v2 consent cookie checks
 - Added support for adinserter shortcode to get post ID
@@ -573,6 +579,12 @@ For the changelog of earlier versions, please refer to the separate changelog.tx
 
 == Upgrade Notice ==
 
+= 2.7.3 =
+Improved ad blocking detection;
+Improved compatibility with PHP 8;
+Improved check for update server accessibility (Pro only);
+Few minor bug fixes, cosmetic changes and code improvements
+
 = 2.7.2 =
 Added shortcuts for TCF v2 consent cookie checks;
 Added support for adinserter shortcode to get post ID;
@@ -641,150 +653,5 @@ Few minor bug fixes, cosmetic changes and code improvements
 
 = 2.6.20 =
 Added support for alt text and lazy loading for banner code generator;
-Few minor bug fixes, cosmetic changes and code improvements
-
-= 2.6.19 =
-Improved code to reduce layout shift when using client-side device detection;
-Added translation for es_ES;
-Added translation for fr_FR;
-Added translation for it_IT;
-Improved compatibility with PHP 8;
-Few minor bug fixes, cosmetic changes and code improvements
-
-= 2.6.18 =
-Added support to change Dynamic blocks setting for adinserter PHP function call;
-Few minor bug fixes, cosmetic changes and code improvements
-
-= 2.6.17 =
-Fix for double client-side insertions when using geolocation (Pro only)
-
-= 2.6.16 =
-Added support for ad blocking detection action every n pageviews;
-Added support to individually disable pageview or click tracking (Pro only);
-Changed IAB TCF v2 cookie check name from euconsent-v2 to tcf-v2 (euconsent-v2 will still work);
-Fix for category check on category pages;
-Fix for issues with Safari browser;
-Few minor bug fixes, cosmetic changes and code improvements
-
-= 2.6.15 =
-No ad blocking detection actions for crawlers and bots;
-Fix for processing Ad Inserter shortcodes inside HTML tags;
-Few minor bug fixes, cosmetic changes and code improvements
-
-= 2.6.14 =
-Added support to insert [embed] shortcodes;
-Few minor bug fixes, cosmetic changes and code improvements
-
-= 2.6.13 =
-Few minor bug fixes
-
-= 2.6.12 =
-Improved ad blocking detection;
-Added options to delay client-side insertions at HTML element;
-Added support to check for multiple cookie values (needed for IAB TCF 2.0);
-Added filter hooks for block processing;
-Few minor bug fixes, cosmetic changes and code improvements
-
-= 2.6.11 =
-Added support for IAB Transparency & Consent Framework 2.0;
-Added support for taxonomy for primary category;
-Added support for taxonomy for post meta data;
-Added support to invert contain/do not contain text condition for paragraph counting;
-Few minor bug fixes, cosmetic changes and code improvements
-
-= 2.6.10 =
-Added user taxonomy items for logged-in and not logged-in users;
-Added option to define tab setup delay (for the plugin settings page);
-Added option to insert unique ad rotation options when block is inserted more than once;
-Added support for client-side device detection for AMP pages (for method Show);
-Added support for code generator for Amazon AMP ads;
-Added support for custom tracking events (Pro only);
-Few minor bug fixes, cosmetic changes and code improvements
-
-= 2.6.9 =
-Added option for paragraph counting to search only tag attributes for text;
-Added option to embed block Javascript code (to be loaded with Ajax calls);
-Added support to prevent duplicate insertions when the_content filter is called more than once (experimental);
-Added support for the client list to check for partial user agent strings;
-Added support for check of cookie object properties;
-Improved ad blocking detection;
-Viewports no longer need to be in descending width order;
-Added option to protect inserted block content (Pro only);
-Added support for adb scripts path filter hook (Pro only);
-Added support to export statistics data to CSV file (Pro only);
-Few minor bug fixes, cosmetic changes and code improvements
-
-= 2.6.8 =
-Added support to disable PHP processing by PHP constant;
-Added support to repeat COUNT options;
-Added support for offset for %n paragraph number (%n@o);
-Added support for options to skip insertion for first and last paragraphs;
-Added support for hook filter 'ai_block_insertion_check';
-Added support for background ads (Pro only);
-Few minor bug fixes, cosmetic changes and code improvements
-
-= 2.6.7 =
-Added support for various shortcodes for post categories;
-Added support for various shortcodes for post tags;
-Added support for user action on click (Pro only);
-Added support for manual loading (Pro only);
-Few minor bug fixes, cosmetic changes and code improvements
-
-= 2.6.6 =
-Fix for exceptions list not showing all exceptions;
-Improved ad blocking detection;
-Fix for close button in preview window (Pro only);
-Few minor bug fixes, cosmetic changes and code improvements
-
-= 2.6.5 =
-Added support for url data shortcode;
-Added warning if not all exceptions were cleared;
-Added support for MaxMind country only database (Pro only);
-Added support for ip to country lookup filter hook (Pro only);
-Fix for country groups in CHECK separators (Pro only);
-Few minor bug fixes, cosmetic changes and code improvements
-
-= 2.6.4 =
-Fix for use of undefined constant warning (Pro only)
-
-= 2.6.3 =
-Added support for shortcodes to disable block insertion;
-Added support for child taxonomy list items;
-Added random parameter to Ajax requests for geolocation (Pro only);
-Added options to define external tracking event category, action and label (Pro only);
-Number of custom hooks increased to 20;
-Fix to prevent insertion into head section when using Rank Math plugin;
-Few minor bug fixes, cosmetic changes and code improvements
-
-= 2.6.2 =
-Added support to disable caching of block PHP code;
-Added support to pause blocks on the blocks list;
-Added support for no url parameters list item;
-Added support for client-side scheduling (Pro only);
-Added support for server-side scheduling using W3TC (Pro only);
-Added support for multisite:site-id taxonomy list item (Pro only);
-Updated MaxMind GeoLite2 database download using license key (Pro only);
-Changed settings format in the database to prevent export/import issues with MySQL/PhpMyAdmin;
-Fix for [ADINSERTER counter] shortcode not expanding inside HTML tags;
-Few minor bug fixes, cosmetic changes and code improvements
-
-= 2.6.1 =
-Fix for errors on the settings page;
-Fix for non English characters in ads;
-Fix for sticky widgets;
-Few minor bug fixes
-
-= 2.6.0 =
-Added support for VIEWPORT separator;
-Added support for viewport check in CHECK separators (Pro only);
-Added support to show processing log on front-end;
-Added support to show link to the Ad Inserter Pro settings page on multisite Sites page (Pro only);
-Added support to detect and prevent document.write after DOM is ready;
-Added support for scheduling hours (Pro only);
-Added support for scheduling days in week (Pro only);
-Added support for W3TC insertion debugging info;
-Improved Javascript code for client-side functions;
-Improved ad blocking detection;
-Default value for Wait for jQuery set to Enabled;
 Few minor bug fixes, cosmetic changes and code improvements
 

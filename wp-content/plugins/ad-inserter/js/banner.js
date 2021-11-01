@@ -1,1 +1,1 @@
-window.ai_banner=true;
+window.ad_banner=true;

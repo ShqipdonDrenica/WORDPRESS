@@ -31,7 +31,7 @@ if (!defined( 'AD_INSERTER_NAME'))
   define ('AD_INSERTER_NAME', 'Ad Inserter');
 
 if (!defined( 'AD_INSERTER_VERSION'))
-  define ('AD_INSERTER_VERSION', '2.7.2');
+  define ('AD_INSERTER_VERSION', '2.7.3');
 
 if (!defined ('AD_INSERTER_PLUGIN_BASENAME'))
   define ('AD_INSERTER_PLUGIN_BASENAME', plugin_basename (__FILE__));
@@ -818,6 +818,8 @@ define ('AI_TRANSIENT_ADB_CLASS_4',             'ai-adb-class-4');
 define ('AI_TRANSIENT_ADB_CLASS_5',             'ai-adb-class-5');
 define ('AI_TRANSIENT_ADB_CLASS_6',             'ai-adb-class-6');
 define ('AI_TRANSIENT_ADB_CLASS_EXPIRATION',    48 * 3600);
+
+define ('AI_TRANSIENT_SERVER_CHECK_EXPIRATION', 48 * 3600);
 
 define ('AI_TRANSIENT_ADB_FILES_VERSION',       'ai-adb-version');
 define ('AI_TRANSIENT_ADB_SEED',                'ai-adb-seed');

@@ -1,1 +1,1 @@
-window.ai_300x250=true;
+window.ad_300x250=true;

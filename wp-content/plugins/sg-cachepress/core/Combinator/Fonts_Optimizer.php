@@ -119,14 +119,14 @@ class Fonts_Optimizer extends Abstract_Combinator {
 			$_fonts = call_user_func( array( $this, $method ), $_fonts );
 		}
 
-		$html = str_replace( '</title>', '</title>' . $_fonts, $html );
+		$html = preg_replace( '~<\/title>~', '</title>' . $_fonts, $html, 1 );
 
 		// Remove old fonts.
 		foreach ( $fonts as $font ) {
 			$html = str_replace( $font[0], '', $html );
 		}
 
-		$html = str_replace( '</title>', '</title><link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin/><link rel="preconnect" href="https://fonts.googleapis.com">', $html );
+		$html = preg_replace( '~<\/title>~', '</title><link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin/><link rel="preconnect" href="https://fonts.googleapis.com"/>', $html, 1 );
 		return $html;
 	}
 
@@ -307,6 +307,6 @@ class Fonts_Optimizer extends Abstract_Combinator {
 		}
 
 		// Insert the link in the head section.
-		return str_replace( '</title>', '</title>' . $new_html, $html );
+		return preg_replace( '~<\/title>~', '</title>' . $new_html, $html, 1 );
 	}
 }

@@ -753,7 +753,7 @@ jQuery (window).on ('load', function () {
   }
 
   function ai_adb_11 () {
-    if (typeof window.ai_banner == "undefined") {
+    if (typeof window.ad_banner == "undefined") {
       if (!ai_adb_active || ai_debugging_active) ai_adb_detected (11);
     } else {
         ai_adb_undetected (11);
@@ -761,7 +761,7 @@ jQuery (window).on ('load', function () {
   }
 
   function ai_adb_12 () {
-    if (typeof window.ai_300x250 == "undefined") {
+    if (typeof window.ad_300x250 == "undefined") {
       if (!ai_adb_active || ai_debugging_active) ai_adb_detected (12);
     } else {
         ai_adb_undetected (12);

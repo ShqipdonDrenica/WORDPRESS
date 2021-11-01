@@ -2,7 +2,7 @@
 
 /*
 Plugin Name: Ad Inserter
-Version: 2.7.2
+Version: 2.7.3
 Description: Ad management with many advanced advertising features to insert ads at optimal positions
 Author: Igor Funa
 Author URI: http://igorfuna.com/
@@ -16,6 +16,12 @@ Requires PHP: 5.6
 /*
 
 Change Log
+
+Ad Inserter 2.7.3 - 2021-08-10
+- Improved ad blocking detection
+- Improved compatibility with PHP 8
+- Improved check for update server accessibility (Pro only)
+- Few minor bug fixes, cosmetic changes and code improvements
 
 Ad Inserter 2.7.2 - 2021-07-05
 - Added shortcuts for TCF v2 consent cookie checks
@@ -792,9 +798,15 @@ function ai_buffering_end () {
   $matches = preg_split ('/(<body.*?'.'>)/i', $page, - 1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
 
   if (($ai_wp_data [AI_WP_DEBUGGING] & AI_DEBUG_PROCESSING) != 0) {
-    ai_log ("BUFFER body matches: " . count ($matches));
-
+    ai_log ("BUFFER body tag matches: " . (count ($matches) - 1) / 2);
     ai_log ("PHP VERSION COMPARE to 5.4: " . (version_compare (phpversion (), "5.4", ">=") ? 'YES' : 'NO'));
+
+    if (count ($matches) > 3) {
+      ai_log ("NO BUFFER PROCESSING - more than one body tag found");
+    }
+    if (version_compare (phpversion (), "5.4", "<")) {
+      ai_log ("NO BUFFER PROCESSING - PHP version below 5.4");
+    }
   }
 
   if (version_compare (phpversion (), "5.4", ">=") && count ($matches) == 3) {
@@ -2204,8 +2216,8 @@ function ai_get_js ($js_name, $replace_js_data = true) {
   if ($ai_wp_data [AI_FRONTEND_JS_DEBUGGING]) {
     $script = @file_get_contents (AD_INSERTER_PLUGIN_DIR."includes/js/$js_name.js");
   } else $script = @file_get_contents (AD_INSERTER_PLUGIN_DIR."includes/js/$js_name.min.js");
+
   if (!$replace_js_data) return $script;
-//  return ai_replace_js_data ($script, $js_name);
   return ai_replace_js_data ($script);
 }
 
@@ -2402,21 +2414,90 @@ function ai_replace_js_data ($js) {
 
       $js = str_replace ('AI_ADB_MESSAGE_WINDOW', $message_code, $js);
 
-//      $js = str_replace ('AI_ADB_MSG_HTML',  base64_encode (str_replace (array ("'", "\r", "\n"), array ("\'", '', ''), do_shortcode ($adb->ai_getCode ()))), $js);
-      $js = str_replace ('AI_ADB_MSG_HTML',  base64_encode (str_replace (array ("\r", "\n"), array ('', ''), do_shortcode ($adb->ai_getCode ()))), $js);
-//      $js = str_replace ('AI_ADB_MSG_STYLE', base64_encode (str_replace (array ("'", "\r", "\n"), array ("\'", '', ''), ai_randomize_properties ($basic_adb_message_css, 100000, 9999999) . ai_randomize_properties (get_message_css ()))), $js);
-      $js = str_replace ('AI_ADB_MSG_STYLE', base64_encode (str_replace (array ("\r", "\n"), array ('', ''), ai_randomize_properties ($basic_adb_message_css, 100000, 9999999) . ai_randomize_properties (get_message_css ()))), $js);
+//      $js = str_replace ('AI_ADB_MSG_HTML',  base64_encode (str_replace (array ("\r", "\n"), array ('', ''), do_shortcode ($adb->ai_getCode ()))), $js);
+      $js = str_replace ('AI_ADB_MSG_HTML',  str_replace (array ("\r", "\n", '"'), array ('', '', '&quot;'), do_shortcode ($adb->ai_getCode ())), $js);
+//      $js = str_replace ('AI_ADB_MSG_STYLE', base64_encode (str_replace (array ("\r", "\n"), array ('', ''), ai_randomize_properties ($basic_adb_message_css, 100000, 9999999) . ai_randomize_properties (get_message_css ()))), $js);
+      $js = str_replace ('AI_ADB_MSG_STYLE', str_replace (array ("\r", "\n", '"'), array ('', '', '&quot;'), ai_randomize_properties ($basic_adb_message_css, 100000, 9999999) . ai_randomize_properties (get_message_css ())), $js);
 
+
+      switch (rand (1, 20)) {
+        case 1:
+          $message_tag = 'section';
+          break;
+        case 2:
+          $message_tag = 'article';
+          break;
+        case 3:
+          $message_tag = 'span';
+          break;
+        case 4:
+          $message_tag = 'header';
+          break;
+        case 5:
+          $message_tag = 'footer';
+          break;
+        case 6:
+          $message_tag = 'nav';
+          break;
+        case 7:
+          $message_tag = 'aside';
+          break;
+        case 8:
+          $message_tag = 'h5';
+          break;
+        case 9:
+          $message_tag = 'h6';
+          break;
+        default:
+          $message_tag = 'div';
+          break;
+      }
+
+      $js = str_replace ('AI_ADB_MSG_TAG', $message_tag, $js);
 
 
       $js_name_node  = 'n'.rand (10000, 10000000);
       $js_name_index = 'i'.rand (10000, 10000000);
 
-      $js_code_1 = 'var '.$js_name_node.' = document.body.getElementsByTagName ("*"); for (var '.$js_name_index.'=0; '.$js_name_index.' < '.$js_name_node.'.length; '.$js_name_index.'++) {';
+      $html_tags = array ();
+      if (rand (1, 10) > 3) $html_tags []= 'DIV';
+      if (rand (1, 10) > 4) $html_tags []= 'P';
+      if (rand (1, 10) > 5) $html_tags []= 'SPAN';
+      if (rand (1, 10) > 5) $html_tags []= 'A';
+      if (rand (1, 10) > 5) $html_tags []= 'ARTICLE';
+      if (rand (1, 10) > 5) $html_tags []= 'H1';
+      if (rand (1, 10) > 5) $html_tags []= 'H2';
+      if (rand (1, 10) > 5) $html_tags []= 'H3';
+      if (rand (1, 10) > 5) $html_tags []= 'H4';
+      if (rand (1, 10) > 5) $html_tags []= 'H5';
+      if (rand (1, 10) > 5) $html_tags []= 'H6';
+      if (rand (1, 10) > 5) $html_tags []= 'BUTTON';
+      if (rand (1, 10) > 6) $html_tags []= 'IFRAME';
+      if (rand (1, 10) > 6) $html_tags []= 'HEADER';
+      if (rand (1, 10) > 5) $html_tags []= 'FOOTER';
+      if (rand (1, 10) > 7) $html_tags []= 'UL';
+      if (rand (1, 10) > 7) $html_tags []= 'OL';
+      if (rand (1, 10) > 5) $html_tags []= 'LI';
+      if (rand (1, 10) > 5) $html_tags []= 'NAV';
+      if (rand (1, 10) > 5) $html_tags []= 'SECTION';
+      if (rand (1, 10) > 5) $html_tags []= 'ASIDE';
+      if (empty ($html_tags)) $html_tags = array ('DIV, P, LI');
+
+      shuffle ($html_tags);
+
+      switch (rand (1, 10)) {
+        case 1:
+          $js_code_1 = 'var '.$js_name_node.' = document.getElementsByTagName ("'. ($html_tags [0]) .'"); for (var '.$js_name_index.'=0; '.$js_name_index.' < '.$js_name_node.'.length; '.$js_name_index.'++) {';
+          break;
+        default:
+          $js_code_1 = 'var '.$js_name_node.' = document.body.querySelectorAll ("'.(implode (', ', $html_tags)).'"); for (var '.$js_name_index.'=0; '.$js_name_index.' < '.$js_name_node.'.length; '.$js_name_index.'++) {';
+          break;
+      }
+
       $js_code_3 = '}';
 
       $js_code_css = array ();
-      if (rand (1, 10) > 3) $js_code_css []= 'style.filter = "blur('.rand (1, 4).'px) brightness('.rand (60, 80).'%)"';
+      if (rand (1, 10) > 2) $js_code_css []= 'style.filter = "blur('.rand (1, 4).'px) brightness('.rand (60, 80).'%)"';
       if (rand (1, 10) > 4) $js_code_css []= 'style.cursor = "no-drop"';
       if (rand (1, 10) > 3) $js_code_css []= 'style.cursor = "grab"';
       if (rand (1, 10) > 5) $js_code_css []= 'style.cursor = "grabbing"';
@@ -2424,13 +2505,13 @@ function ai_replace_js_data ($js) {
       if (rand (1, 10) > 7) $js_code_css []= 'style.cursor = "not-allowed"';
       if (rand (1, 10) > 8) $js_code_css []= 'style.cursor = "cell"';
       if (rand (1, 10) > 9) $js_code_css []= 'style.cursor = "all-scroll"';
-      if (rand (1, 10) > 5) $js_code_css []= 'style.background = "rgba('.rand (1, 255).', '.rand (1, 255).', '.rand (1, 255).', '.(rand (50, 80)/100).'"';
+      if (rand (1, 10) > 2) $js_code_css []= 'style.background = "rgba('.rand (31, 55).', '.rand (31, 55).', '.rand (31, 55).', '.(rand (50, 80)/100).')"';
       if (rand (1, 10) > 6) $js_code_css []= 'style.opacity = "0.'.rand (55, 84).'"';
       if (rand (1, 10) > 6) $js_code_css []= 'style.zIndex = "'.rand (1, 12345).'"';
       if (rand (1, 10) > 7) $js_code_css []= 'style.textTransform = "uppercase"';
-      if (rand (1, 10) > 7) $js_code_css []= 'style.letterSpacing = "'.rand (0, 5).'px"';
-      if (rand (1, 10) > 5) $js_code_css []= 'style.border = "'.rand (2, 25).'px solid"';
-      if (rand (1, 10) > 5) $js_code_css []= 'style.color = "rgba('.rand (1, 255).', '.rand (1, 255).', '.rand (1, 255).', '.(rand (20, 50)/100).'"';
+      if (rand (1, 10) > 8) $js_code_css []= 'style.letterSpacing = "'.rand (0, 5).'px"';
+      if (rand (1, 10) > 8) $js_code_css []= 'style.border = "'.rand (2, 25).'px solid"';
+      if (rand (1, 10) > 8) $js_code_css []= 'style.color = "rgba('.rand (1, 255).', '.rand (1, 255).', '.rand (1, 255).', '.(rand (20, 50)/100).')"';
       if (rand (1, 10) > 6) $js_code_css []= 'style.fontFamily = "sans-serif"';
       if (rand (1, 10) > 7) $js_code_css []= 'style.fontFamily = "serif"';
       if (rand (1, 10) > 8) $js_code_css []= 'style.fontFamily = "sans-serif"';
@@ -2441,6 +2522,9 @@ function ai_replace_js_data ($js) {
       if (rand (1, 10) > 9) $js_code_css []= 'style.display = "list-item"';
       if (rand (1, 10) > 9) $js_code_css []= 'style.display = "inline"';
 
+      if (rand (1, 10) > 3) $js_code_css []= 'style.margin = "'.rand (500, 2345).'px"';
+      if (rand (1, 10) > 4) $js_code_css []= 'style.padding = "'.rand (500, 2345).'px"';
+
       if (rand (1, 10) > 7) $js_code_css []= 'remove ()'; else
       if (rand (1, 10) > 7) $js_code_css []= 'parentNode.removeChild (@@)';
       $js_code_2 = '';
@@ -2449,9 +2533,15 @@ function ai_replace_js_data ($js) {
         $js_code_2 .= $js_name_node.'['.$js_name_index.'].'.$js_code_css_line.';';
       }
 
-      $js = str_replace ('AI_ADB_HTML', base64_encode ($js_code_1.$js_code_2.$js_code_3), $js);
+//      $js = str_replace ('AI_ADB_HTML', base64_encode ($js_code_1.$js_code_2.$js_code_3), $js);
+      $js = str_replace ('var AI_ADB_HTML=1;', $js_code_1.$js_code_2.$js_code_3, $js);
 
+      $body_js_code = '';
+      if (rand (1, 10) > 5) $body_js_code .= 'document.body.style.background = "rgba('.rand (11, 35).', '.rand (11, 35).', '.rand (11, 35).', '.(rand (60, 90)/100).')";';
+      if (rand (1, 10) > 6) $body_js_code .= 'document.body.style.backgroundColor = "rgba('.rand (21, 45).', '.rand (21, 45).', '.rand (21, 45).', '.(rand (60, 90)/100).')";';
+      if (rand (1, 10) > 6) $body_js_code .= 'document.body.style.margin = "'.rand (400, 4345).'px"';
 
+      $js = str_replace ('var AI_ADB_HTML=2;', $body_js_code, $js);
 
       $js = str_replace ('AI_ADB_SELECTORS', get_adb_selectors (true), $js);
 
@@ -2565,6 +2655,27 @@ function ai_adb_external_scripts () {
   return $code;
 }
 
+//function ai_replace_prefix ($js_code) {
+
+//  if (!defined ('AI_ADB_PREFIX')) {
+//    $seed = date ('Y-m-d H');
+
+//    $key = $seed.'AI_';
+//    if (defined ('NONCE_KEY')) {
+//      $key .= NONCE_KEY;
+//    }
+//    if (defined ('AUTH_KEY')) {
+//      $key .= AUTH_KEY;
+//      $auth_key = $seed.AUTH_KEY;
+//    } else $auth_key = $seed.'#AI_';
+
+//    define ('AI_ADB_PREFIX', substr (substr (preg_replace ("/[^A-Za-z]+/", '', strtolower (md5 ($seed.$auth_key))), 0, 4) . preg_replace ("/[^A-Za-z0-9]+/", '', strtolower (md5 ($seed.$key))), 0, 8) . '_');
+//  }
+
+////  return preg_replace ("/ai_/", AI_ADB_PREFIX, $js_code);
+//  return preg_replace ("/ai_adb/", AI_ADB_PREFIX, $js_code);
+//}
+
 function add_footer_inline_scripts () {
   global $ai_wp_data, $wp_version;
 
@@ -2593,7 +2704,7 @@ function add_footer_inline_scripts () {
       if (!defined ('AI_ADB_NO_BANNER_JS')) {
         echo '<script async id="ai-adb-banner" src="', plugins_url ('js/banner.js',  __FILE__ ), "?ver=", AD_INSERTER_VERSION, '"></script>', "\n";
       }
-      if (!defined ('AI_ADB_NO_300x260_JS')) {
+      if (!defined ('AI_ADB_NO_300x250_JS')) {
         echo '<script async id="ai-adb-300x250" src="', plugins_url ('js/300x250.js',  __FILE__ ), "?ver=", AD_INSERTER_VERSION, '"></script>', "\n";
       }
       echo '<!--/noptimize-->', "\n";
@@ -2641,6 +2752,9 @@ function add_footer_inline_scripts () {
     if ($adb_code) {
       if (get_adb_action () == AI_ADB_ACTION_MESSAGE && /*get_undismissible_message ()*/ !defined ('AI_ADB_NO_JS_CHECK')) {
         echo ai_get_js ('ai-adb-try');
+
+        // Prevent replacing prefix
+//        echo '[[ai-adb-try]]';
       }
     }
 
@@ -2764,9 +2878,18 @@ function add_footer_inline_scripts () {
 
     $footer_js_code = ob_get_clean ();
 
+
     if (function_exists ('check_footer_inline_scripts')) {
       $footer_js_code = check_footer_inline_scripts ($footer_js_code);
     }
+
+//    if ($adb_code) {
+//      $footer_js_code = str_replace ('ai_ajax', '[[ai-ajax]]', $footer_js_code);
+//      $footer_js_code = ai_replace_prefix ($footer_js_code);
+//      $footer_js_code = str_replace ('[[ai-ajax]]', 'ai_ajax', $footer_js_code);
+//    }
+
+//    $footer_js_code = str_replace ('[[ai-adb-try]]', ai_get_js ('ai-adb-try'), $footer_js_code);
 
     echo $footer_js_code;
 
@@ -3306,6 +3429,8 @@ function ai_wp_head_hook () {
 
   $ai_wp_data [AI_HEAD] = true;
 
+//  $adb_code = defined ('AI_ADBLOCKING_DETECTION') && AI_ADBLOCKING_DETECTION && $ai_wp_data [AI_ADB_DETECTION] && !isset ($ai_wp_data [AI_ADB_SHORTCODE_DISABLED]);
+
   if (defined ('AI_BUFFERING')) {
     if (get_output_buffering ()) {
       if ($ai_wp_data [AI_WP_PAGE_TYPE] != AI_PT_AJAX && !$ai_wp_data [AI_CODE_FOR_IFRAME]) {
@@ -3317,7 +3442,13 @@ function ai_wp_head_hook () {
   if (!get_disable_js_code () &&
       (get_remote_debugging () || ($ai_wp_data [AI_WP_USER] & AI_USER_LOGGED_IN) != 0) &&
       (($ai_wp_data [AI_WP_DEBUGGING] & (AI_DEBUG_POSITIONS | AI_DEBUG_BLOCKS)) != 0 || (isset ($_GET [AI_URL_DEBUG_PROCESSING_FE]) && $_GET [AI_URL_DEBUG_PROCESSING_FE] != 0))) {
-    echo "<script>\n", ai_get_js ('ai-errors-head', false), "</script>\n";
+
+//    if ($adb_code) {
+//      echo "<script>\n", ai_replace_prefix (ai_get_js ('ai-errors-head', false)), "</script>\n";
+//    } else {
+        echo "<script>\n", ai_get_js ('ai-errors-head', false), "</script>\n";
+//      }
+
   }
 
   $ai_wp_data [AI_CONTEXT] = AI_CONTEXT_NONE;
@@ -3418,7 +3549,7 @@ function ai_wp_head_hook () {
     }
 
     if (($ai_wp_data [AI_WP_DEBUGGING] & (AI_DEBUG_AD_BLOCKING_STATUS | AI_DEBUG_BLOCKS)) != 0) {
-      $ai_wp_data [AI_FOOTER_JS_CODE_DOM_READY] .= "  jQuery('body').prepend (\"<section id='ai-iab-tcf-bar' class='".AI_DEBUG_STATUS_CLASS."' style='cursor: pointer; display: none;' title='". __('Click to delete the cokie for the consents', 'ad-inserter') ."'><span id='ai-iab-tcf-status'>IAB TCF 2.0</span></section>\");
+      $ai_wp_data [AI_FOOTER_JS_CODE_DOM_READY] .= "  jQuery('body').prepend (\"<section id='ai-iab-tcf-bar' class='".AI_DEBUG_STATUS_CLASS."' style='cursor: pointer; display: none;' title='". __('Click to delete the cookie for the consents', 'ad-inserter') ."'><span id='ai-iab-tcf-status'>IAB TCF 2.0</span></section>\");
 ";
     }
 

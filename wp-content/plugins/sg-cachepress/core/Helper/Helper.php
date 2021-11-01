@@ -1,83 +1,70 @@
 <?php
 namespace SiteGround_Optimizer\Helper;
 
-use SiteGround_Optimizer;
-use SiteGround_Optimizer\Admin\Admin;
-use SiteGround_Optimizer\Rest\Rest;
-use SiteGround_Optimizer\Supercacher\Supercacher;
-use SiteGround_Optimizer\Supercacher\Supercacher_Helper;
-use SiteGround_Optimizer\Install_Service\Install_Service;
-use SiteGround_Optimizer\Memcache\Memcache;
-use SiteGround_Optimizer\Front_End_Optimization\Front_End_Optimization;
-use SiteGround_Optimizer\Cli\Cli;
-use SiteGround_Optimizer\Config\Config;
-use SiteGround_Optimizer\I18n\I18n;
-use SiteGround_Optimizer\Heartbeat_Control\Heartbeat_Control;
-use SiteGround_Optimizer\Database_Optimizer\Database_Optimizer;
-use SiteGround_Optimizer\DNS\Cloudflare;
-use SiteGround_Optimizer\Settings\Settings;
 /**
  * Helper functions and main initialization class.
  */
 class Helper {
 
 	/**
-	 * Create a new helper.
+	 * Test if the current browser runs on a mobile device (smart phone, tablet, etc.)
+	 *
+	 * @since  5.9.0
+	 *
+	 * @return boolean
 	 */
-	public function __construct() {
-		add_action( 'plugins_loaded', array( $this, 'is_plugin_installed' ) );
-		add_action( 'init', array( $this, 'hide_warnings_in_rest_api' ) );
-		add_filter( 'site_status_tests', array( $this, 'sitehealth_remove_https_status' ) );
+	public static function is_mobile() {
+		if ( function_exists( 'wp_is_mobile' ) ) {
+			return wp_is_mobile();
+		}
 
-		// Run the plugin functionality.
-		$this->run();
+		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+			$is_mobile = false;
+		} elseif ( @strpos( $_SERVER['HTTP_USER_AGENT'], 'Mobile' ) !== false // many mobile devices (all iPhone, iPad, etc.)
+			|| @strpos( $_SERVER['HTTP_USER_AGENT'], 'Android' ) !== false
+			|| @strpos( $_SERVER['HTTP_USER_AGENT'], 'Silk/' ) !== false
+			|| @strpos( $_SERVER['HTTP_USER_AGENT'], 'Kindle' ) !== false
+			|| @strpos( $_SERVER['HTTP_USER_AGENT'], 'BlackBerry' ) !== false
+			|| @strpos( $_SERVER['HTTP_USER_AGENT'], 'Opera Mini' ) !== false
+			|| @strpos( $_SERVER['HTTP_USER_AGENT'], 'Opera Mobi' ) !== false ) {
+				$is_mobile = true;
+		} else {
+			$is_mobile = false;
+		}
+
+		return $is_mobile;
 	}
 
 	/**
-	 * Run the plugin functionality.
+	 * Checks if the page is being rendered via page builder.
 	 *
-	 * @since  5.0.0
+	 * @since  5.9.0
+	 *
+	 * @return bool True/false.
 	 */
-	public function run() {
-		new I18n();
+	public static function check_for_builders() {
 
-		new Install_Service();
-		// Initialize dashboard page.
-		new Admin();
+		$builder_paramas = apply_filters(
+			'sgo_pb_params',
+			array(
+				'fl_builder',
+				'vcv-action',
+				'et_fb',
+				'ct_builder',
+				'tve',
+				'preview',
+				'elementor-preview',
+				'uxb_iframe',
+			)
+		);
 
-		// Initialize the rest api endpoints.
-		new Rest();
+		foreach ( $builder_paramas as $param ) {
+			if ( isset( $_GET[ $param ] ) ) {
+				return true;
+			}
+		}
 
-		// Init the supercacher.
-		// DO NOT REMOVE $this->supercacher, as its used from `sg_cachepress_purge_cache` helper function.
-		$this->supercacher = new Supercacher();
-
-		// Init the memcacher.
-		new Memcache();
-
-		// Init and run the helper class that set cache headers and bypass cookies.
-		new Supercacher_Helper();
-
-		// Init the main class responsible for front-end optionmization.
-		new Front_End_Optimization();
-
-		// Init the CLI commands.
-		new Cli();
-
-		// Init the config class.
-		new Config();
-
-		// Init the Heartbeat Control.
-		new Heartbeat_Control();
-
-		// Init the Database Optimizer.
-		new Database_Optimizer();
-
-		// Init Cloudflare API.
-		new Cloudflare();
-
-		// Init Settings class.
-		new Settings();
+		return false;
 	}
 
 	/**
@@ -209,8 +196,8 @@ class Helper {
 	 *
 	 * @return boolean True/False.
 	 */
-	public static function is_avalon() {
-		return (int) file_exists( '/etc/yum.repos.d/baseos.repo' );
+	public static function is_siteground() {
+		return (int) ( file_exists( '/etc/yum.repos.d/baseos.repo' ) && file_exists( '/Z' ) );
 	}
 
 	/**

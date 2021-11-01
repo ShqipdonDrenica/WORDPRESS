@@ -87,7 +87,7 @@ jQuery(document).ready(function($) {
   });
 
   $(window).on ('load', function () {
-    if (!ai_preview_window) setTimeout (function() {ai_process_adsense_ads (jQuery);}, 50);
+    if (!ai_preview_window) setTimeout (function() {ai_process_adsense_ads (jQuery);}, 150);
   });
 
 });
